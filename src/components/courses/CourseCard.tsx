@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { Heart, CheckCircle, Star, TreePine, Wind, Layers } from "lucide-react";
 import { Course } from "@/types";
 import DifficultyBadge from "./DifficultyBadge";
+import CourseArtwork from "./CourseArtwork";
 import clsx from "clsx";
 
 interface Props {
@@ -26,41 +26,30 @@ export default function CourseCard({
     terrainLabel === "Wooded" ? TreePine :
     terrainLabel === "Open" ? Wind : Layers;
   const TerrainIcon = terrainIcon;
-  const imageSrc = course.imageUrl ?? "/course-placeholder.svg";
+  const hasVerifiedMetadata = course.lengthFeet !== undefined || course.free !== undefined || course.terrain !== undefined;
 
   return (
     <div className={clsx("card-hover relative group", compact ? "w-48" : "w-full")}>
       <Link href={`/course/${course.id}`} className="block">
         <div
           className={clsx(
-            "relative rounded-2xl overflow-hidden bg-forest-800 border border-forest-700/50",
-            "transition-all duration-200 group-hover:border-forest-500/70 group-hover:shadow-lg group-hover:shadow-forest-900/80"
+            "relative overflow-hidden rounded-[28px] border border-forest-700/50 bg-[linear-gradient(180deg,rgba(20,34,20,0.98)_0%,rgba(10,18,12,1)_100%)]",
+            "transition-all duration-200 group-hover:border-forest-500/70 group-hover:shadow-[0_18px_40px_rgba(2,10,6,0.45)]"
           )}
         >
-          {/* Image */}
-          <div className={clsx("relative w-full overflow-hidden", compact ? "h-32" : "h-44")}>
-            <Image
-              src={imageSrc}
-              alt={course.name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes={compact ? "192px" : "(max-width: 768px) 100vw, 50vw"}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-forest-900/70 via-transparent to-transparent" />
+          <div className={clsx("relative w-full overflow-hidden", compact ? "h-28" : "h-36")}>
+            <CourseArtwork course={course} compact={compact} />
 
-            {/* Top badges */}
             <div className="absolute top-2 left-2 flex gap-1.5">
               <DifficultyBadge label={course.difficultyLabel} size="sm" />
             </div>
 
-            {/* Free badge */}
             {course.free === true && (
-              <div className="absolute top-2 right-10 bg-forest-700/80 backdrop-blur-sm border border-forest-600/60 text-forest-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              <div className="absolute top-2 right-10 rounded-full border border-white/16 bg-black/20 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
                 FREE
               </div>
             )}
 
-            {/* Played indicator */}
             {isPlayed && (
               <div className="absolute bottom-2 left-2">
                 <CheckCircle size={16} className="text-pine drop-shadow-md" fill="rgba(74,222,128,0.3)" />
@@ -68,19 +57,17 @@ export default function CourseCard({
             )}
           </div>
 
-          {/* Content */}
-          <div className="p-3">
+          <div className="p-3.5">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <h3 className={clsx("font-semibold text-forest-50 truncate leading-tight", compact ? "text-sm" : "text-base")}>
+                <h3 className={clsx("font-semibold text-forest-50 leading-tight", compact ? "text-sm" : "text-base")}>
                   {course.name}
                 </h3>
-                <p className="text-xs text-forest-400 mt-0.5 truncate">
+                <p className="mt-1 text-xs text-forest-400 truncate">
                   {course.city} · {course.region}
                 </p>
               </div>
 
-              {/* Favorite button */}
               {onToggleFavorite && (
                 <button
                   onClick={(e) => {
@@ -100,23 +87,39 @@ export default function CourseCard({
               )}
             </div>
 
-            {!compact && (
-              <div className="mt-2.5 flex items-center gap-3 text-xs text-forest-400">
+            <div className={clsx("mt-3 flex flex-wrap items-center gap-2 text-xs", compact ? "text-forest-400" : "text-forest-300")}>
+              <div className="flex items-center gap-1 rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
                 <div className="flex items-center gap-1">
                   <Star size={11} className="text-amber-400 fill-amber-400" />
                   <span className="text-forest-200 font-medium">{course.rating}</span>
                   <span className="text-forest-500">({course.ratingCount})</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <TerrainIcon size={11} className="text-forest-400" />
-                  <span>{terrainLabel}</span>
-                </div>
-                <span>{course.holes} holes</span>
               </div>
-            )}
+
+              <div className="flex items-center gap-1 rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
+                <TerrainIcon size={11} className="text-forest-400" />
+                <span>{terrainLabel}</span>
+              </div>
+
+              <div className="rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
+                {course.holes} holes
+              </div>
+
+              {!compact && hasVerifiedMetadata && (
+                <div className="rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
+                  {course.lengthFeet !== undefined ? `${course.lengthFeet.toLocaleString()} ft` : feeOnlyLabel(course)}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </Link>
     </div>
   );
+}
+
+function feeOnlyLabel(course: Course) {
+  if (course.free === true) return "Free to play";
+  if (course.free === false) return "Pay to play";
+  return "PDGA listed";
 }

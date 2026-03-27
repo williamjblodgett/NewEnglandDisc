@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Heart, CheckCircle, Star, TreePine, Wind, Layers,
@@ -19,6 +18,7 @@ import { getCourseStats, formatDate, scoreLabel } from "@/lib/stats";
 import DifficultyBadge from "@/components/courses/DifficultyBadge";
 import DifficultyMeter from "@/components/courses/DifficultyMeter";
 import EmptyState from "@/components/shared/EmptyState";
+import CourseArtwork from "@/components/courses/CourseArtwork";
 import clsx from "clsx";
 
 const CONDITIONS = ["Great", "Windy", "Muddy", "Wet", "Dry", "Cold", "Hot"] as const;
@@ -70,7 +70,6 @@ export default function CourseDetailClient({ id }: { id: string }) {
   const played = isPlayed(course.id);
   const favorited = isFavorite(course.id);
   const displayedRounds = showAllRounds ? courseRounds : courseRounds.slice(0, 3);
-  const imageSrc = course.imageUrl ?? "/course-placeholder.svg";
   const terrainLabel = course.terrain ?? "Unknown";
   const feeLabel = course.free === true ? "Free" : course.free === false ? "Paid" : "Not verified";
   const detailsSource = course.source ?? "Source not listed";
@@ -104,8 +103,8 @@ export default function CourseDetailClient({ id }: { id: string }) {
   return (
     <div className="min-h-screen bg-forest-900 page-enter">
       <div className="relative h-60 w-full">
-        <Image src={imageSrc} alt={course.name} fill className="object-cover" priority sizes="100vw" />
-        <div className="absolute inset-0 bg-gradient-to-b from-forest-900/40 via-transparent to-forest-900" />
+        <CourseArtwork course={course} variant="hero" />
+        <div className="absolute inset-0 bg-gradient-to-b from-forest-900/24 via-transparent to-forest-900" />
 
         <button
           onClick={() => router.back()}

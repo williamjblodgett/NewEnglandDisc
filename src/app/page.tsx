@@ -132,7 +132,7 @@ export default function HomePage() {
                 Maine Passport
               </span>
             </div>
-            <span className="text-pine font-bold text-sm">{played.length}/30</span>
+            <span className="text-pine font-bold text-sm">{played.length}/{totalCourses}</span>
           </div>
           <div className="w-full h-2 bg-forest-700 rounded-full overflow-hidden">
             <div
