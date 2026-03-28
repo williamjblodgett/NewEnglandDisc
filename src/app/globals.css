@@ -29,7 +29,8 @@
   --color-amber-warm: #f59e0b;
   --color-sky-cool: #38bdf8;
 
-  --font-display: "Inter", system-ui, sans-serif;
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-editorial: "Fraunces", Georgia, serif;
 }
 
 :root {
@@ -50,9 +51,16 @@ body {
   font-family: var(--font-display);
   overscroll-behavior: none;
   background-image:
-    radial-gradient(circle at top left, rgba(74, 222, 128, 0.08), transparent 22%),
-    radial-gradient(circle at top right, rgba(56, 189, 248, 0.06), transparent 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0));
+    radial-gradient(circle at 12% 10%, rgba(74, 222, 128, 0.11), transparent 20%),
+    radial-gradient(circle at 88% 14%, rgba(56, 189, 248, 0.08), transparent 18%),
+    radial-gradient(circle at 50% 120%, rgba(245, 158, 11, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    linear-gradient(180deg, #102018 0%, #0d1712 42%, #0a120d 100%);
+}
+
+::selection {
+  background: rgba(74, 222, 128, 0.3);
+  color: #f5fff8;
 }
 
 /* Safe area support for iPhone notch/home indicator */
@@ -102,4 +110,9 @@ body {
 /* Badge glow when earned */
 .badge-earned {
   box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+}
+
+.editorial-title {
+  font-family: var(--font-editorial);
+  font-variation-settings: "SOFT" 60, "WONK" 0;
 }

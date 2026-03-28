@@ -3,34 +3,83 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, Heart, CheckCircle, Star, TreePine, Wind, Layers,
-  MapPin, DollarSign, Disc, Clock, Mountain, Droplets, Zap,
-  Plus, Trash2, CalendarDays,
+  ArrowLeft,
+  Heart,
+  CheckCircle,
+  Star,
+  TreePine,
+  Wind,
+  Layers,
+  MapPin,
+  DollarSign,
+  Disc,
+  Clock,
+  Mountain,
+  Droplets,
+  Zap,
+  Plus,
+  Trash2,
+  CalendarDays,
 } from "lucide-react";
+import clsx from "clsx";
+import CourseArtwork from "@/components/courses/CourseArtwork";
+import DifficultyBadge from "@/components/courses/DifficultyBadge";
+import DifficultyMeter from "@/components/courses/DifficultyMeter";
+import EmptyState from "@/components/shared/EmptyState";
 import { getCourseById } from "@/data/courses";
 import {
   useFavorites,
   usePlayedCourses,
-  useRounds,
   useRecentlyViewed,
+  useRounds,
 } from "@/hooks/useUserData";
-import { getCourseStats, formatDate, scoreLabel } from "@/lib/stats";
-import DifficultyBadge from "@/components/courses/DifficultyBadge";
-import DifficultyMeter from "@/components/courses/DifficultyMeter";
-import EmptyState from "@/components/shared/EmptyState";
-import CourseArtwork from "@/components/courses/CourseArtwork";
-import clsx from "clsx";
+import { formatDate, getCourseStats, scoreLabel } from "@/lib/stats";
 
 const CONDITIONS = ["Great", "Windy", "Muddy", "Wet", "Dry", "Cold", "Hot"] as const;
 
-function StatRow({ label, value, icon }: { label: string; value: string | number; icon?: React.ReactNode }) {
+function StatRow({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string | number;
+  icon?: React.ReactNode;
+}) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-forest-800/60 last:border-0">
-      <div className="flex items-center gap-2 text-forest-400 text-sm">
+    <div className="flex items-center justify-between border-b border-forest-800/60 py-3 last:border-0">
+      <div className="flex items-center gap-2 text-sm text-forest-400">
         {icon}
         {label}
       </div>
-      <span className="text-forest-100 font-semibold text-sm">{value}</span>
+      <span className="text-sm font-semibold text-forest-100">{value}</span>
+    </div>
+  );
+}
+
+function HeroFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-forest-700/60 bg-forest-800/72 px-3 py-3">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-forest-500">{label}</div>
+      <div className="mt-1 text-sm font-semibold text-forest-100">{value}</div>
+    </div>
+  );
+}
+
+function LocationCard({
+  label,
+  value,
+  helpText,
+}: {
+  label: string;
+  value: string;
+  helpText: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-forest-700/40 bg-forest-700/35 px-3 py-3">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-forest-500">{label}</div>
+      <div className="mt-1 text-sm font-semibold text-forest-100">{value}</div>
+      <div className="mt-1 text-xs leading-relaxed text-forest-400">{helpText}</div>
     </div>
   );
 }
@@ -38,7 +87,6 @@ function StatRow({ label, value, icon }: { label: string; value: string | number
 export default function CourseDetailClient({ id }: { id: string }) {
   const router = useRouter();
   const course = getCourseById(id);
-
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isPlayed, togglePlayed } = usePlayedCourses();
   const { addRound, deleteRound, getRoundsForCourse } = useRounds();
@@ -59,7 +107,7 @@ export default function CourseDetailClient({ id }: { id: string }) {
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-forest-900 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-forest-900">
         <EmptyState icon="🥏" title="Course not found" body="This course doesn't exist." />
       </div>
     );
@@ -80,8 +128,10 @@ export default function CourseDetailClient({ id }: { id: string }) {
 
   const handleAddRound = () => {
     if (!formScore) return;
-    const score = parseInt(formScore);
-    const vsPar = formVsPar ? parseInt(formVsPar) : course.par !== undefined ? score - course.par : 0;
+
+    const score = parseInt(formScore, 10);
+    const vsPar = formVsPar ? parseInt(formVsPar, 10) : course.par !== undefined ? score - course.par : 0;
+
     addRound({
       courseId: course.id,
       date: new Date(formDate).toISOString(),
@@ -91,7 +141,9 @@ export default function CourseDetailClient({ id }: { id: string }) {
       conditions: formCondition,
       personalRating: formRating,
     });
+
     if (!played) togglePlayed(course.id);
+
     setShowRoundForm(false);
     setFormScore("");
     setFormVsPar("");
@@ -102,88 +154,88 @@ export default function CourseDetailClient({ id }: { id: string }) {
 
   return (
     <div className="min-h-screen bg-forest-900 page-enter">
-      <div className="relative h-60 w-full">
-        <CourseArtwork course={course} variant="hero" />
-        <div className="absolute inset-0 bg-gradient-to-b from-forest-900/24 via-transparent to-forest-900" />
+      <div className="px-4 pb-8 pt-12">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <button
+            onClick={() => router.back()}
+            className="rounded-full border border-forest-700/60 bg-forest-800/72 p-2 text-forest-100 backdrop-blur-sm"
+          >
+            <ArrowLeft size={18} />
+          </button>
 
-        <button
-          onClick={() => router.back()}
-          className="absolute top-12 left-4 p-2 rounded-full bg-forest-900/70 backdrop-blur-sm border border-forest-700/50 text-forest-100"
-        >
-          <ArrowLeft size={18} />
-        </button>
+          <button
+            onClick={() => toggleFavorite(course.id)}
+            className="rounded-full border border-forest-700/60 bg-forest-800/72 p-2 backdrop-blur-sm"
+          >
+            <Heart size={18} strokeWidth={2} className={favorited ? "fill-red-400 text-red-400" : "text-forest-200"} />
+          </button>
+        </div>
 
-        <button
-          onClick={() => toggleFavorite(course.id)}
-          className="absolute top-12 right-4 p-2 rounded-full bg-forest-900/70 backdrop-blur-sm border border-forest-700/50"
-        >
-          <Heart size={18} strokeWidth={2} className={favorited ? "text-red-400 fill-red-400" : "text-forest-200"} />
-        </button>
-      </div>
+        <div className="mb-5 rounded-[34px] border border-forest-700/50 bg-[linear-gradient(180deg,rgba(18,29,21,0.98),rgba(10,17,12,1))] p-5 shadow-[0_24px_60px_rgba(2,10,6,0.34)] sm:p-6">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-stretch">
+            <div>
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <DifficultyBadge label={course.difficultyLabel} score={course.difficultyScore} />
+                {course.free === true ? (
+                  <span className="rounded-full border border-emerald-700/60 bg-emerald-900/45 px-2.5 py-1 text-xs font-semibold text-emerald-300">Free</span>
+                ) : course.free === false ? (
+                  <span className="rounded-full border border-amber-700/50 bg-amber-900/45 px-2.5 py-1 text-xs font-semibold text-amber-300">Paid</span>
+                ) : (
+                  <span className="rounded-full border border-forest-600/50 bg-forest-700/75 px-2.5 py-1 text-xs font-semibold text-forest-300">Fee Unknown</span>
+                )}
+                {played && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-pine/40 bg-pine/12 px-2.5 py-1 text-xs font-semibold text-pine">
+                    <CheckCircle size={11} /> Played
+                  </span>
+                )}
+              </div>
 
-      <div className="px-4 -mt-6 relative z-10">
-        <div className="bg-forest-800 border border-forest-700/50 rounded-2xl p-4 mb-4">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-forest-50 leading-tight">{course.name}</h1>
-              <div className="flex items-center gap-1.5 mt-1 text-forest-400 text-sm">
-                <MapPin size={12} />
-                <span>{course.city}, {course.region}</span>
+              <h1 className="editorial-title text-4xl leading-[0.94] text-forest-50 sm:text-5xl">{course.name}</h1>
+
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-forest-300">
+                <span className="flex items-center gap-1.5"><MapPin size={14} /> {course.city}, {course.region}</span>
+                <span className="flex items-center gap-1.5"><Star size={14} className="fill-amber-400 text-amber-400" /> {course.rating} rating ({course.ratingCount})</span>
+              </div>
+
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-forest-300">
+                {course.description ?? `${detailsSource}-listed course in ${course.city}, Maine.`}
+              </p>
+              <p className="mt-2 text-xs text-forest-500">
+                Verified source: {detailsSource}
+                {course.coordinatePrecision === "town" ? " · location references town center" : ""}
+              </p>
+
+              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <HeroFact label="Layout" value={`${course.holes} holes`} />
+                <HeroFact label="Length" value={course.lengthFeet !== undefined ? `${course.lengthFeet.toLocaleString()} ft` : "Unverified"} />
+                <HeroFact label="Terrain" value={terrainLabel} />
+                <HeroFact label="Established" value={course.established?.toString() ?? "Unknown"} />
+              </div>
+
+              <div className="mt-5">
+                <p className="mb-1.5 text-xs text-forest-500">Difficulty rating</p>
+                <DifficultyMeter score={course.difficultyScore} />
               </div>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Star size={13} className="text-amber-400 fill-amber-400" />
-              <span className="text-forest-100 font-bold text-sm">{course.rating}</span>
-              <span className="text-forest-500 text-xs">({course.ratingCount})</span>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <DifficultyBadge label={course.difficultyLabel} score={course.difficultyScore} />
-            {course.free === true ? (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-700/60 text-emerald-300">Free</span>
-            ) : course.free === false ? (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-900/50 border border-amber-700/50 text-amber-300">Paid</span>
-            ) : (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-forest-700/80 border border-forest-600/50 text-forest-300">Fee Unknown</span>
-            )}
-            {played && (
-              <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-pine/20 border border-pine/40 text-pine">
-                <CheckCircle size={10} /> Played
-              </span>
-            )}
-          </div>
-
-          <div className="mt-3">
-            <p className="text-forest-500 text-xs mb-1.5">Difficulty Rating</p>
-            <DifficultyMeter score={course.difficultyScore} />
+            <CourseArtwork course={course} variant="hero" />
           </div>
         </div>
 
-        <div className="mb-4">
-          <p className="text-forest-300 text-sm leading-relaxed">
-            {course.description ?? `${detailsSource}-listed course in ${course.city}, Maine.`}
-          </p>
-          <p className="text-forest-500 text-xs mt-2">
-            Verified source: {detailsSource}
-            {course.coordinatePrecision === "town" ? " · map pin shows town center" : ""}
-          </p>
-        </div>
-
-        <div className="flex gap-3 mb-6">
+        <div className="mb-6 flex gap-3">
           <button
             onClick={() => setShowRoundForm((value) => !value)}
-            className="flex-1 flex items-center justify-center gap-2 bg-pine text-forest-900 font-bold text-sm py-3 rounded-full"
+            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-pine py-3 text-sm font-bold text-forest-900"
           >
             <Plus size={16} /> Log a Round
           </button>
           <button
             onClick={() => togglePlayed(course.id)}
             className={clsx(
-              "flex-1 flex items-center justify-center gap-2 font-semibold text-sm py-3 rounded-full border transition-all",
+              "flex flex-1 items-center justify-center gap-2 rounded-full border py-3 text-sm font-semibold transition-all",
               played
-                ? "bg-pine/20 border-pine/40 text-pine"
-                : "bg-forest-800 border-forest-700/60 text-forest-300"
+                ? "border-pine/40 bg-pine/20 text-pine"
+                : "border-forest-700/60 bg-forest-800 text-forest-300"
             )}
           >
             <CheckCircle size={16} />
@@ -192,52 +244,52 @@ export default function CourseDetailClient({ id }: { id: string }) {
         </div>
 
         {showRoundForm && (
-          <div className="bg-forest-800 border border-forest-700/50 rounded-2xl p-4 mb-6">
-            <h3 className="text-forest-50 font-bold text-base mb-4">Log a Round</h3>
+          <div className="mb-6 rounded-2xl border border-forest-700/50 bg-forest-800 p-4">
+            <h3 className="mb-4 text-base font-bold text-forest-50">Log a Round</h3>
             <div className="space-y-3">
               <div>
-                <label className="text-forest-400 text-xs font-semibold block mb-1">Date</label>
+                <label className="mb-1 block text-xs font-semibold text-forest-400">Date</label>
                 <input
                   type="date"
                   value={formDate}
                   onChange={(event) => setFormDate(event.target.value)}
-                  className="w-full bg-forest-700/80 border border-forest-600/60 rounded-xl px-3 py-2.5 text-forest-100 text-sm outline-none focus:border-pine/60"
+                  className="w-full rounded-xl border border-forest-600/60 bg-forest-700/80 px-3 py-2.5 text-sm text-forest-100 outline-none focus:border-pine/60"
                 />
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <label className="text-forest-400 text-xs font-semibold block mb-1">Total Score</label>
+                  <label className="mb-1 block text-xs font-semibold text-forest-400">Total Score</label>
                   <input
                     type="number"
                     placeholder={course.par !== undefined ? `e.g. ${course.par + 4}` : "Enter total score"}
                     value={formScore}
                     onChange={(event) => setFormScore(event.target.value)}
-                    className="w-full bg-forest-700/80 border border-forest-600/60 rounded-xl px-3 py-2.5 text-forest-100 text-sm outline-none focus:border-pine/60"
+                    className="w-full rounded-xl border border-forest-600/60 bg-forest-700/80 px-3 py-2.5 text-sm text-forest-100 outline-none focus:border-pine/60"
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="text-forest-400 text-xs font-semibold block mb-1">vs Par (optional)</label>
+                  <label className="mb-1 block text-xs font-semibold text-forest-400">vs Par (optional)</label>
                   <input
                     type="number"
                     placeholder="e.g. +4"
                     value={formVsPar}
                     onChange={(event) => setFormVsPar(event.target.value)}
-                    className="w-full bg-forest-700/80 border border-forest-600/60 rounded-xl px-3 py-2.5 text-forest-100 text-sm outline-none focus:border-pine/60"
+                    className="w-full rounded-xl border border-forest-600/60 bg-forest-700/80 px-3 py-2.5 text-sm text-forest-100 outline-none focus:border-pine/60"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-forest-400 text-xs font-semibold block mb-2">Conditions</label>
-                <div className="flex gap-2 flex-wrap">
+                <label className="mb-2 block text-xs font-semibold text-forest-400">Conditions</label>
+                <div className="flex flex-wrap gap-2">
                   {CONDITIONS.map((condition) => (
                     <button
                       key={condition}
                       onClick={() => setFormCondition(condition)}
                       className={clsx(
-                        "text-xs px-3 py-1.5 rounded-full border transition-all",
+                        "rounded-full border px-3 py-1.5 text-xs transition-all",
                         formCondition === condition
-                          ? "bg-pine text-forest-900 border-pine"
-                          : "bg-forest-700/60 text-forest-400 border-forest-600/50"
+                          ? "border-pine bg-pine text-forest-900"
+                          : "border-forest-600/50 bg-forest-700/60 text-forest-400"
                       )}
                     >
                       {condition}
@@ -246,21 +298,21 @@ export default function CourseDetailClient({ id }: { id: string }) {
                 </div>
               </div>
               <div>
-                <label className="text-forest-400 text-xs font-semibold block mb-1">Notes</label>
+                <label className="mb-1 block text-xs font-semibold text-forest-400">Notes</label>
                 <textarea
                   value={formNotes}
                   onChange={(event) => setFormNotes(event.target.value)}
                   placeholder="Best round yet, lost a disc on 7, muddy back nine…"
                   rows={2}
-                  className="w-full bg-forest-700/80 border border-forest-600/60 rounded-xl px-3 py-2.5 text-forest-100 text-sm outline-none focus:border-pine/60 resize-none"
+                  className="w-full resize-none rounded-xl border border-forest-600/60 bg-forest-700/80 px-3 py-2.5 text-sm text-forest-100 outline-none focus:border-pine/60"
                 />
               </div>
               <div>
-                <label className="text-forest-400 text-xs font-semibold block mb-2">Personal Rating</label>
+                <label className="mb-2 block text-xs font-semibold text-forest-400">Personal Rating</label>
                 <div className="flex gap-1.5">
                   {[1, 2, 3, 4, 5].map((value) => (
                     <button key={value} onClick={() => setFormRating(value)}>
-                      <Star size={22} className={value <= formRating ? "text-amber-400 fill-amber-400" : "text-forest-600"} />
+                      <Star size={22} className={value <= formRating ? "fill-amber-400 text-amber-400" : "text-forest-600"} />
                     </button>
                   ))}
                 </div>
@@ -269,13 +321,13 @@ export default function CourseDetailClient({ id }: { id: string }) {
                 <button
                   onClick={handleAddRound}
                   disabled={!formScore}
-                  className="flex-1 bg-pine disabled:opacity-40 text-forest-900 font-bold text-sm py-2.5 rounded-full"
+                  className="flex-1 rounded-full bg-pine py-2.5 text-sm font-bold text-forest-900 disabled:opacity-40"
                 >
                   Save Round
                 </button>
                 <button
                   onClick={() => setShowRoundForm(false)}
-                  className="flex-1 bg-forest-700/60 text-forest-300 font-semibold text-sm py-2.5 rounded-full"
+                  className="flex-1 rounded-full bg-forest-700/60 py-2.5 text-sm font-semibold text-forest-300"
                 >
                   Cancel
                 </button>
@@ -285,28 +337,28 @@ export default function CourseDetailClient({ id }: { id: string }) {
         )}
 
         {stats.totalRounds > 0 && (
-          <div className="bg-forest-800 border border-forest-700/50 rounded-2xl p-4 mb-4">
-            <h3 className="text-forest-50 font-bold text-base mb-3">Your Stats</h3>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="bg-forest-700/50 rounded-xl p-3 text-center">
-                <div className="text-2xl font-extrabold text-pine stat-number">{stats.bestScore}</div>
-                <div className="text-forest-400 text-xs mt-0.5">Best Score</div>
+          <div className="mb-4 rounded-2xl border border-forest-700/50 bg-forest-800 p-4">
+            <h3 className="mb-3 text-base font-bold text-forest-50">Your Stats</h3>
+            <div className="mb-3 grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-forest-700/50 p-3 text-center">
+                <div className="stat-number text-2xl font-extrabold text-pine">{stats.bestScore}</div>
+                <div className="mt-0.5 text-xs text-forest-400">Best Score</div>
               </div>
-              <div className="bg-forest-700/50 rounded-xl p-3 text-center">
-                <div className="text-2xl font-extrabold text-forest-100 stat-number">{stats.avgScore}</div>
-                <div className="text-forest-400 text-xs mt-0.5">Avg Score</div>
+              <div className="rounded-xl bg-forest-700/50 p-3 text-center">
+                <div className="stat-number text-2xl font-extrabold text-forest-100">{stats.avgScore}</div>
+                <div className="mt-0.5 text-xs text-forest-400">Avg Score</div>
               </div>
-              <div className="bg-forest-700/50 rounded-xl p-3 text-center">
-                <div className="text-2xl font-extrabold text-forest-100 stat-number">{stats.totalRounds}</div>
-                <div className="text-forest-400 text-xs mt-0.5">Rounds Played</div>
+              <div className="rounded-xl bg-forest-700/50 p-3 text-center">
+                <div className="stat-number text-2xl font-extrabold text-forest-100">{stats.totalRounds}</div>
+                <div className="mt-0.5 text-xs text-forest-400">Rounds Played</div>
               </div>
-              <div className="bg-forest-700/50 rounded-xl p-3 text-center">
+              <div className="rounded-xl bg-forest-700/50 p-3 text-center">
                 <div className="text-xs font-bold text-forest-100">{stats.lastPlayed ? formatDate(stats.lastPlayed) : "—"}</div>
-                <div className="text-forest-400 text-xs mt-0.5">Last Played</div>
+                <div className="mt-0.5 text-xs text-forest-400">Last Played</div>
               </div>
             </div>
             {stats.improvement !== null && stats.improvement > 0 && (
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium bg-emerald-900/30 rounded-xl px-3 py-2">
+              <div className="rounded-xl bg-emerald-900/30 px-3 py-2 text-xs font-medium text-emerald-400">
                 📈 You&apos;ve improved by ~{stats.improvement.toFixed(1)} strokes recently. Keep it up!
               </div>
             )}
@@ -315,20 +367,20 @@ export default function CourseDetailClient({ id }: { id: string }) {
 
         {courseRounds.length > 0 && (
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-forest-50 font-bold text-base">Round History</h3>
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-base font-bold text-forest-50">Round History</h3>
               {courseRounds.length > 3 && (
-                <button onClick={() => setShowAllRounds((value) => !value)} className="text-pine text-xs font-medium">
+                <button onClick={() => setShowAllRounds((value) => !value)} className="text-xs font-medium text-pine">
                   {showAllRounds ? "Show less" : `See all ${courseRounds.length}`}
                 </button>
               )}
             </div>
             <div className="space-y-2">
               {displayedRounds.map((round) => (
-                <div key={round.id} className="bg-forest-800 border border-forest-700/40 rounded-xl p-3 flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-forest-100 font-bold text-sm">{round.totalScore}</span>
+                <div key={round.id} className="flex items-center justify-between gap-3 rounded-xl border border-forest-700/40 bg-forest-800 p-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="text-sm font-bold text-forest-100">{round.totalScore}</span>
                       <span
                         className={clsx(
                           "text-xs font-semibold",
@@ -343,12 +395,12 @@ export default function CourseDetailClient({ id }: { id: string }) {
                       <CalendarDays size={10} /> {formatDate(round.date)}
                       {round.conditions && <span>· {round.conditions}</span>}
                     </div>
-                    {round.notes && <p className="text-forest-400 text-xs mt-1 truncate">{round.notes}</p>}
+                    {round.notes && <p className="mt-1 truncate text-xs text-forest-400">{round.notes}</p>}
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 items-center gap-2">
                     <div className="flex">
                       {[1, 2, 3, 4, 5].map((value) => (
-                        <Star key={value} size={10} className={value <= round.personalRating ? "text-amber-400 fill-amber-400" : "text-forest-700"} />
+                        <Star key={value} size={10} className={value <= round.personalRating ? "fill-amber-400 text-amber-400" : "text-forest-700"} />
                       ))}
                     </div>
                     <button onClick={() => deleteRound(round.id)} className="p-1.5 text-forest-600 hover:text-red-400">
@@ -361,8 +413,8 @@ export default function CourseDetailClient({ id }: { id: string }) {
           </div>
         )}
 
-        <div className="bg-forest-800 border border-forest-700/50 rounded-2xl p-4 mb-4">
-          <h3 className="text-forest-50 font-bold text-base mb-1">Course Details</h3>
+        <div className="mb-4 rounded-2xl border border-forest-700/50 bg-forest-800 p-4">
+          <h3 className="mb-1 text-base font-bold text-forest-50">Course Details</h3>
           <StatRow label="Holes" value={course.holes} icon={<Disc size={13} />} />
           <StatRow label="Course Length" value={course.lengthFeet !== undefined ? `${course.lengthFeet.toLocaleString()} ft` : "Not verified"} icon={<Zap size={13} />} />
           <StatRow label="Par" value={course.par ?? "Not verified"} icon={<Star size={13} />} />
@@ -374,11 +426,11 @@ export default function CourseDetailClient({ id }: { id: string }) {
         </div>
 
         {(course.amenities?.length ?? 0) > 0 && (
-          <div className="bg-forest-800 border border-forest-700/50 rounded-2xl p-4 mb-4">
-            <h3 className="text-forest-50 font-bold text-base mb-3">Amenities</h3>
+          <div className="mb-4 rounded-2xl border border-forest-700/50 bg-forest-800 p-4">
+            <h3 className="mb-3 text-base font-bold text-forest-50">Amenities</h3>
             <div className="flex flex-wrap gap-2">
               {course.amenities?.map((amenity) => (
-                <span key={amenity} className="text-xs bg-forest-700/70 border border-forest-600/50 text-forest-200 px-2.5 py-1 rounded-full">
+                <span key={amenity} className="rounded-full border border-forest-600/50 bg-forest-700/70 px-2.5 py-1 text-xs text-forest-200">
                   {amenity}
                 </span>
               ))}
@@ -387,12 +439,12 @@ export default function CourseDetailClient({ id }: { id: string }) {
         )}
 
         {(course.localTips?.length ?? 0) > 0 && (
-          <div className="bg-gradient-to-br from-forest-700/60 to-forest-800 border border-forest-600/40 rounded-2xl p-4 mb-4">
-            <h3 className="text-forest-50 font-bold text-base mb-3">💡 Local Tips</h3>
+          <div className="mb-4 rounded-2xl border border-forest-600/40 bg-gradient-to-br from-forest-700/60 to-forest-800 p-4">
+            <h3 className="mb-3 text-base font-bold text-forest-50">💡 Local Tips</h3>
             <ul className="space-y-2">
               {course.localTips?.map((tip, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm text-forest-300">
-                  <span className="text-pine mt-0.5 shrink-0">→</span>
+                  <span className="mt-0.5 shrink-0 text-pine">→</span>
                   {tip}
                 </li>
               ))}
@@ -400,28 +452,38 @@ export default function CourseDetailClient({ id }: { id: string }) {
           </div>
         )}
 
-        <div className="bg-forest-800 border border-forest-700/50 rounded-2xl p-4 mb-8">
-          <h3 className="text-forest-50 font-bold text-base mb-2">Location</h3>
-          <div className="flex items-center gap-2 text-forest-400 text-sm mb-3">
-            <MapPin size={14} className="text-pine" />
-            <span>{course.city}, Maine</span>
+        <div className="mb-8 rounded-2xl border border-forest-700/50 bg-forest-800 p-4">
+          <h3 className="mb-2 text-base font-bold text-forest-50">Location</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <LocationCard label="Place" value={`${course.city}, Maine`} helpText={course.region} />
+            <LocationCard
+              label="Precision"
+              value={course.coordinatePrecision === "town" ? "Town center" : course.coordinates ? "Verified point" : "Not verified"}
+              helpText={course.coordinatePrecision === "town" ? "Good for planning, not for tee-pad navigation" : "Use the course listing for arrival details"}
+            />
+            <LocationCard
+              label="Coordinates"
+              value={course.coordinates ? `${course.coordinates.lat.toFixed(4)}°, ${course.coordinates.lng.toFixed(4)}°` : "Unavailable"}
+              helpText={course.coordinates ? "Decimal degrees" : "Coordinates not yet verified"}
+            />
+            <LocationCard
+              label="Source"
+              value={detailsSource}
+              helpText="Displayed as researched catalog metadata"
+            />
           </div>
-          <div className="w-full h-28 bg-forest-700/60 rounded-xl flex items-center justify-center border border-forest-600/30">
-            <div className="text-center">
-              {course.coordinates ? (
-                <>
-                  <p className="text-forest-500 text-xs">
-                    📍 {course.coordinates.lat.toFixed(4)}°N, {Math.abs(course.coordinates.lng).toFixed(4)}°W
-                  </p>
-                  <p className="text-forest-600 text-xs mt-1">
-                    {course.coordinatePrecision === "town" ? "Approximate town-center location" : "Open in Maps"}
-                  </p>
-                </>
-              ) : (
-                <p className="text-forest-500 text-xs">Location coordinates not yet verified</p>
-              )}
-            </div>
-          </div>
+
+          {course.coordinates && (
+            <a
+              href={`https://www.google.com/maps?q=${course.coordinates.lat},${course.coordinates.lng}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-2 rounded-full border border-forest-600/60 bg-forest-700/60 px-4 py-2 text-sm font-semibold text-forest-100"
+            >
+              <MapPin size={14} className="text-pine" />
+              Open coordinates in Maps
+            </a>
+          )}
         </div>
       </div>
     </div>

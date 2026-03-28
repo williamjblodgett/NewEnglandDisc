@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/layout/AppShell";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-display" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-display" });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-editorial" });
 
 export const metadata: Metadata = {
   title: "Maine Disc Golf",
@@ -30,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className={`${manrope.variable} ${fraunces.variable} h-full`}>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

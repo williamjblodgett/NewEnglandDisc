@@ -126,13 +126,22 @@ function ExploreContent() {
 
   return (
     <div className="min-h-screen bg-forest-900 page-enter">
-      {/* Header */}
       <div className="sticky top-0 z-40 bg-forest-900/95 backdrop-blur-md border-b border-forest-800/60 px-4 pt-12 pb-3">
-        <h1 className="text-xl font-bold text-forest-50 mb-3">
-          Explore Courses
-        </h1>
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-forest-500">Discovery</p>
+            <h1 className="editorial-title text-3xl leading-none text-forest-50">Explore Maine</h1>
+            <p className="mt-2 max-w-2xl text-sm text-forest-300">
+              Find the right course by town, region, difficulty, and how you actually play.
+            </p>
+          </div>
 
-        {/* Search bar */}
+          <div className="rounded-2xl border border-forest-700/60 bg-forest-800/70 px-3 py-2 text-right">
+            <div className="text-2xl font-extrabold text-forest-50 stat-number">{filtered.length}</div>
+            <div className="text-[11px] text-forest-500">in view</div>
+          </div>
+        </div>
+
         <div className="flex gap-2">
           <div className="flex-1 flex items-center gap-2 bg-forest-800 border border-forest-700/60 rounded-xl px-3 py-2.5">
             <Search size={15} className="text-forest-500 shrink-0" />
@@ -165,7 +174,21 @@ function ExploreContent() {
           </button>
         </div>
 
-        {/* Sort chips */}
+        <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
+          <div className="rounded-2xl border border-forest-700/60 bg-forest-800/70 p-3">
+            <div className="text-[10px] uppercase tracking-[0.18em] text-forest-500">All courses</div>
+            <div className="mt-1 text-lg font-bold text-forest-50 stat-number">{courses.length}</div>
+          </div>
+          <div className="rounded-2xl border border-forest-700/60 bg-forest-800/70 p-3">
+            <div className="text-[10px] uppercase tracking-[0.18em] text-forest-500">Favorites</div>
+            <div className="mt-1 text-lg font-bold text-forest-50 stat-number">{favorites.length}</div>
+          </div>
+          <div className="rounded-2xl border border-forest-700/60 bg-forest-800/70 p-3">
+            <div className="text-[10px] uppercase tracking-[0.18em] text-forest-500">Played</div>
+            <div className="mt-1 text-lg font-bold text-forest-50 stat-number">{played.length}</div>
+          </div>
+        </div>
+
         <div className="flex gap-2 mt-3 overflow-x-auto [scrollbar-width:none]">
           {(["rating", "difficulty", "name", "length"] as SortKey[]).map((k) => (
             <FilterChip

@@ -30,90 +30,84 @@ export default function CourseCard({
 
   return (
     <div className={clsx("card-hover relative group", compact ? "w-48" : "w-full")}>
+      {onToggleFavorite && (
+        <button
+          onClick={() => onToggleFavorite(course.id)}
+          className="absolute right-4 top-4 z-10 rounded-full border border-forest-700/60 bg-forest-900/72 p-2 backdrop-blur-sm transition-colors hover:border-forest-500/70"
+          aria-label={isFavorite ? "Remove favorite" : "Add favorite"}
+        >
+          <Heart
+            size={16}
+            strokeWidth={2}
+            className={isFavorite ? "text-red-400 fill-red-400" : "text-forest-400"}
+          />
+        </button>
+      )}
+
       <Link href={`/course/${course.id}`} className="block">
         <div
           className={clsx(
-            "relative overflow-hidden rounded-[28px] border border-forest-700/50 bg-[linear-gradient(180deg,rgba(20,34,20,0.98)_0%,rgba(10,18,12,1)_100%)]",
-            "transition-all duration-200 group-hover:border-forest-500/70 group-hover:shadow-[0_18px_40px_rgba(2,10,6,0.45)]"
+            "relative overflow-hidden rounded-[30px] border border-forest-700/50 bg-[linear-gradient(180deg,rgba(21,34,20,0.98)_0%,rgba(11,18,13,1)_100%)] p-4",
+            "transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-forest-500/70 group-hover:shadow-[0_22px_50px_rgba(2,10,6,0.42)]"
           )}
         >
-          <div className={clsx("relative w-full overflow-hidden", compact ? "h-28" : "h-36")}>
-            <CourseArtwork course={course} compact={compact} />
+          <div className="flex items-start gap-4">
+            <div className="min-w-0 flex-1 pr-8">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <DifficultyBadge label={course.difficultyLabel} size="sm" />
+                {isPlayed && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-pine/40 bg-pine/12 px-2 py-1 text-[11px] font-semibold text-pine">
+                    <CheckCircle size={11} /> Played
+                  </span>
+                )}
+                {course.free === true && (
+                  <span className="rounded-full border border-emerald-700/50 bg-emerald-900/45 px-2 py-1 text-[11px] font-semibold text-emerald-300">
+                    Free to play
+                  </span>
+                )}
+              </div>
 
-            <div className="absolute top-2 left-2 flex gap-1.5">
-              <DifficultyBadge label={course.difficultyLabel} size="sm" />
+              <h3 className={clsx("editorial-title leading-tight text-forest-50", compact ? "text-lg" : "text-[1.65rem]")}>{course.name}</h3>
+              <p className="mt-1 text-sm text-forest-300">{course.city}, {course.region}</p>
+              <p className={clsx("mt-3 max-w-xl text-sm leading-relaxed text-forest-400", compact ? "line-clamp-2" : "line-clamp-2")}>
+                {course.description ?? `${course.source ?? "PDGA"}-listed course in ${course.city} with ${course.holes} holes and a ${course.difficultyLabel.toLowerCase()} profile.`}
+              </p>
             </div>
 
-            {course.free === true && (
-              <div className="absolute top-2 right-10 rounded-full border border-white/16 bg-black/20 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
-                FREE
-              </div>
-            )}
-
-            {isPlayed && (
-              <div className="absolute bottom-2 left-2">
-                <CheckCircle size={16} className="text-pine drop-shadow-md" fill="rgba(74,222,128,0.3)" />
-              </div>
-            )}
+            <CourseArtwork course={course} compact={compact} />
           </div>
 
-          <div className="p-3.5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <h3 className={clsx("font-semibold text-forest-50 leading-tight", compact ? "text-sm" : "text-base")}>
-                  {course.name}
-                </h3>
-                <p className="mt-1 text-xs text-forest-400 truncate">
-                  {course.city} · {course.region}
-                </p>
-              </div>
-
-              {onToggleFavorite && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onToggleFavorite(course.id);
-                  }}
-                  className="p-1.5 rounded-full hover:bg-forest-700/60 transition-colors shrink-0"
-                  aria-label={isFavorite ? "Remove favorite" : "Add favorite"}
-                >
-                  <Heart
-                    size={16}
-                    strokeWidth={2}
-                    className={isFavorite ? "text-red-400 fill-red-400" : "text-forest-400"}
-                  />
-                </button>
-              )}
-            </div>
-
-            <div className={clsx("mt-3 flex flex-wrap items-center gap-2 text-xs", compact ? "text-forest-400" : "text-forest-300")}>
-              <div className="flex items-center gap-1 rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
-                <div className="flex items-center gap-1">
-                  <Star size={11} className="text-amber-400 fill-amber-400" />
-                  <span className="text-forest-200 font-medium">{course.rating}</span>
-                  <span className="text-forest-500">({course.ratingCount})</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1 rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
-                <TerrainIcon size={11} className="text-forest-400" />
-                <span>{terrainLabel}</span>
-              </div>
-
-              <div className="rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
-                {course.holes} holes
-              </div>
-
-              {!compact && hasVerifiedMetadata && (
-                <div className="rounded-full border border-forest-700/80 bg-forest-800/70 px-2 py-1">
-                  {course.lengthFeet !== undefined ? `${course.lengthFeet.toLocaleString()} ft` : feeOnlyLabel(course)}
-                </div>
-              )}
-            </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+            <InfoPill label="Rating" value={`${course.rating} (${course.ratingCount})`} icon={<Star size={12} className="text-amber-400 fill-amber-400" />} />
+            <InfoPill label="Terrain" value={terrainLabel} icon={<TerrainIcon size={12} className="text-forest-300" />} />
+            <InfoPill label="Layout" value={`${course.holes} holes`} />
+            <InfoPill
+              label={course.lengthFeet !== undefined ? "Length" : "Listing"}
+              value={course.lengthFeet !== undefined ? `${course.lengthFeet.toLocaleString()} ft` : feeOnlyLabel(course)}
+            />
           </div>
         </div>
       </Link>
+    </div>
+  );
+}
+
+function InfoPill({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-forest-700/70 bg-forest-800/65 px-3 py-2.5">
+      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-forest-500">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <div className="mt-1 text-sm font-semibold text-forest-100">{value}</div>
     </div>
   );
 }
